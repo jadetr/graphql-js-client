@@ -6,10 +6,11 @@ function parseArgs(args) {
   let name;
   let variables;
   let selectionSetCallback;
+  let internationalizationDirective;
 
-  if (args.length === 3) {
-    [name, variables, selectionSetCallback] = args;
-  } else if (args.length === 2) {
+  if (args.length === 4) {
+    [name, variables, selectionSetCallback, internationalizationDirective] = args;
+  } else if (args.length === 3 && args[2] !== undefined && args[2].indexOf('inContext')) {
     if (Object.prototype.toString.call(args[0]) === '[object String]') {
       name = args[0];
       variables = null;
@@ -19,12 +20,28 @@ function parseArgs(args) {
     }
 
     selectionSetCallback = args[1];
+    internationalizationDirective = args[2];
+  } else if (args.length === 2 && args[1] !== undefined && Object.prototype.toString.call(args[1]) === '[object String]' && args[1].indexOf('inContext')) {
+    selectionSetCallback = args[0];
+    internationalizationDirective = args[1]; 
+    name = null; 
+  } else if (args.length === 2 || (args.length === 3 && args[2] === undefined)) {
+    if (Object.prototype.toString.call(args[0]) === '[object String]') {
+        name = args[0];
+        variables = null;
+    } else if (Array.isArray(args[0])) {
+        variables = args[0];
+        name = null;
+    }
+    selectionSetCallback = args[1];
+    internationalizationDirective = null;
   } else {
     selectionSetCallback = args[0];
+    internationalizationDirective = null;
     name = null;
   }
 
-  return {name, variables, selectionSetCallback};
+  return {name, variables, selectionSetCallback, internationalizationDirective};
 }
 
 class VariableDefinitions {
@@ -53,11 +70,12 @@ export default class Operation {
    * This constructor should not be invoked. The subclasses {@link Query} and {@link Mutation} should be used instead.
    */
   constructor(typeBundle, operationType, ...args) {
-    const {name, variables, selectionSetCallback} = parseArgs(args);
+    const {name, variables, selectionSetCallback, internationalizationDirective} = parseArgs(args);
 
     this.typeBundle = typeBundle;
     this.name = name;
     this.variableDefinitions = new VariableDefinitions(variables);
+    this.internationalizationDirective = internationalizationDirective;
     this.operationType = operationType;
     if (operationType === 'query') {
       this.selectionSet = new SelectionSet(typeBundle, typeBundle.queryType, selectionSetCallback);
@@ -83,7 +101,8 @@ export default class Operation {
    */
   toString() {
     const nameString = (this.name) ? ` ${this.name}` : '';
+    const internationalizationDirective = (this.internationalizationDirective ? this.internationalizationDirective : '');
 
-    return `${this.operationType}${nameString}${this.variableDefinitions}${this.selectionSet}`;
+    return `${this.operationType}${nameString}${this.variableDefinitions}${internationalizationDirective}${this.selectionSet}`;
   }
 }
