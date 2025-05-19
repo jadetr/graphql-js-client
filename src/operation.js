@@ -10,7 +10,7 @@ function parseArgs(args) {
 
   if (args.length === 4) {
     [name, variables, selectionSetCallback, internationalizationDirective] = args;
-  } else if (args.length === 3 && args[2] !== undefined && args[2].indexOf('inContext')) {
+  } else if (args.length === 3 && args[2] !== undefined && Object.prototype.toString.call(args[2]) === '[object String]' && args[2].indexOf('inContext')) {
     if (Object.prototype.toString.call(args[0]) === '[object String]') {
       name = args[0];
       variables = null;
