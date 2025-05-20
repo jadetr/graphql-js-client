@@ -35,7 +35,7 @@ function parseArgs(args) {
     name = null;
   }
 
-  return {name, variables, selectionSetCallback};
+  return {name, variables, selectionSetCallback, internationalizationDirective};
 }
 class VariableDefinitions {
   constructor(variableDefinitions) {
