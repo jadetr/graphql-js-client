@@ -6,7 +6,7 @@ function parseArgs(args) {
   let name;
   let variables;
   let selectionSetCallback;
-  let internationalizationDirective = null;
+  let internationalizationDirective;
 
   // Handle the case when internationalizationDirective is the last parameter
   if (args.length > 0 && 
