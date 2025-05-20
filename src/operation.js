@@ -6,11 +6,21 @@ function parseArgs(args) {
   let name;
   let variables;
   let selectionSetCallback;
-  let internationalizationDirective;
+  let internationalizationDirective = null;
 
-  if (args.length === 4) {
-    [name, variables, selectionSetCallback, internationalizationDirective] = args;
-  } else if (args.length === 3 && args[2] !== undefined && Object.prototype.toString.call(args[2]) === '[object String]' && args[2].indexOf('inContext')) {
+  // Handle the case when internationalizationDirective is the last parameter
+  if (args.length > 0 && 
+      typeof args[args.length - 1] === 'string' && 
+      args[args.length - 1].includes('inContext')) {
+    internationalizationDirective = args[args.length - 1];
+    // Remove the internationalizationDirective from args for further processing
+    args = args.slice(0, args.length - 1);
+  }
+
+  // Now process remaining args using original logic
+  if (args.length === 3) {
+    [name, variables, selectionSetCallback] = args;
+  } else if (args.length === 2) {
     if (Object.prototype.toString.call(args[0]) === '[object String]') {
       name = args[0];
       variables = null;
@@ -20,30 +30,13 @@ function parseArgs(args) {
     }
 
     selectionSetCallback = args[1];
-    internationalizationDirective = args[2];
-  } else if (args.length === 2 && args[1] !== undefined && Object.prototype.toString.call(args[1]) === '[object String]' && args[1].indexOf('inContext')) {
-    selectionSetCallback = args[0];
-    internationalizationDirective = args[1]; 
-    name = null; 
-  } else if (args.length === 2 || (args.length === 3 && args[2] === undefined)) {
-    if (Object.prototype.toString.call(args[0]) === '[object String]') {
-        name = args[0];
-        variables = null;
-    } else if (Array.isArray(args[0])) {
-        variables = args[0];
-        name = null;
-    }
-    selectionSetCallback = args[1];
-    internationalizationDirective = null;
   } else {
     selectionSetCallback = args[0];
-    internationalizationDirective = null;
     name = null;
   }
 
-  return {name, variables, selectionSetCallback, internationalizationDirective};
+  return {name, variables, selectionSetCallback};
 }
-
 class VariableDefinitions {
   constructor(variableDefinitions) {
     this.variableDefinitions = variableDefinitions ? [...variableDefinitions] : [];
